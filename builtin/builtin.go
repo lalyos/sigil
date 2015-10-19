@@ -46,6 +46,7 @@ func init() {
 		"drop":       Drop,
 		"append":     Append,
 		"stdin":      Stdin,
+		"tojson":     ToJson,
 	})
 }
 
@@ -333,6 +334,31 @@ func Stdin() (stdinStr, error) {
 
 func Append(item interface{}, items []interface{}) []interface{} {
 	return append(items, item)
+}
+
+func ToJson(variadic ...interface{}) string {
+	ret := ""
+	vv := map[string]interface{}{}
+	for _, v := range variadic {
+		switch tt := v.(type) {
+		case map[interface{}]interface{}:
+			for key, val := range tt {
+				vv[key.(string)] = val
+			}
+
+			v = vv
+		default:
+			fmt.Printf("[DEF-TYPE]: %T   tt:%s \n", v, tt)
+		}
+
+		fmt.Printf("XXXXXXX type-v: %T\n value:%#v \n", vv, vv)
+		a, err := json.Marshal(vv)
+		if err != nil {
+			fmt.Printf("ERROR: %s,  \n type-v: %T\n type-vv:%T \n", err, v, vv)
+		}
+		ret = string(a)
+	}
+	return ret
 }
 
 func Drop(item interface{}, items []interface{}) ([]interface{}, error) {
