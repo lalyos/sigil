@@ -101,6 +101,7 @@ T_substr() {
   result="$($SIGIL -i '{{ "abcdefgh" | substr "1:4" }}')"
 	[[ "$result" == "bcd" ]]
 }
+
 T_substr_single_index() {
   result="$($SIGIL -i '{{ "abcdefgh" | substr ":4" }}')"
 	[[ "$result" == "abcd" ]]
@@ -116,3 +117,6 @@ T_base64dec() {
 	[[ "$result" == "happybirthday" ]]
 }
 
+T_yamltojson() {
+  result="$(printf 'joe:\n  age: 32\n  color: red' | $SIGIL -i '{{ stdin |  yamltojson }}')"
+}
