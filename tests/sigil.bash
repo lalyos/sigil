@@ -119,4 +119,8 @@ T_base64dec() {
 
 T_yamltojson() {
   result="$(printf 'joe:\n  age: 32\n  color: red' | $SIGIL -i '{{ stdin |  yamltojson }}')"
+
+T_jmespath() {
+  result="$(echo '[{"name":"bob","age":20},{"name":"jim","age":30},{"name":"joe","age":40}]' | $SIGIL -i '{{stdin | json | jmespath "[? age >= `30`].name | reverse(@)"  | join ","}}')"
+    [[ "$result" == 'joe,jim' ]]
 }

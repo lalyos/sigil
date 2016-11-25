@@ -20,6 +20,7 @@ import (
 	"github.com/flynn/go-shlex"
 	yyaml "github.com/ghodss/yaml"
 	"github.com/gliderlabs/sigil"
+	"github.com/jmespath/go-jmespath"
 	"gopkg.in/yaml.v2"
 )
 
@@ -54,6 +55,7 @@ func init() {
 		"httpget": HttpGet,
 		// structured data
 		"pointer":    Pointer,
+		"jmespath":   JmesPath,
 		"json":       Json,
 		"tojson":     ToJson,
 		"yaml":       Yaml,
@@ -99,9 +101,8 @@ func HttpGet(in interface{}) (interface{}, error) {
 	if err != nil {
 		return "", err
 	}
-	return sigil.NamedReader{resp.Body, "<"+in_+">"}, nil
+	return sigil.NamedReader{resp.Body, "<" + in_ + ">"}, nil
 }
-
 
 func JoinKv(sep string, in interface{}) ([]interface{}, error) {
 	m, ok := in.(map[string]interface{})
@@ -372,6 +373,20 @@ func Pointer(path string, in interface{}) (interface{}, error) {
 		return nil, fmt.Errorf("pointer needs a map type")
 	}
 	return jsonpointer.Get(m, path), nil
+}
+
+func JmesPath(path string, in interface{}) (interface{}, error) {
+	precompiled, err := jmespath.Compile(path)
+	if err != nil {
+		return nil, fmt.Errorf("JmesPath compileerror: %v", err)
+	}
+
+	result, err := precompiled.Search(in)
+	if err != nil {
+		return nil, fmt.Errorf("JmesPath search error: %v", err)
+	}
+
+	return result, nil
 }
 
 func Render(args ...interface{}) (interface{}, error) {
